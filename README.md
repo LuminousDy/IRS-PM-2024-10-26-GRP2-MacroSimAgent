@@ -7,7 +7,7 @@
 
 ### 1. Miscellaneous
 - **1.1 Proposal**  
-  Status: Lost, Existed
+  Status: Uploaded, Unconfirmed
 - **1.2 First Presentation PPT**  
   Status: Lost, Existed
 
