@@ -70,7 +70,7 @@ Open a browser and navigate to `http://localhost:3000` to configure and start si
 3. **Advanced Modeling**: Introduce reinforcement learning and additional social factors for agent decision-making.
 
 ## Contributors
-- **Din Yi (A0295756J)**
+- **Ding Yi (A0295756J)**
 - **Yang Runzhi (A0297296H)**
 - **Lou Shengxin (A0397330A)**
 - **Shi Haocheng (A0296265R)**
