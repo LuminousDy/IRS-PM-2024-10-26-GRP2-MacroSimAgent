@@ -50,7 +50,7 @@ git clone https://github.com/LuminousDy/IRS-PM-2024-10-26-GRP2-MacroSimAgent.git
 2. **Navigate to the EcoAgents directory**:
 cd IRS-PM-2024-10-26-GRP2-MacroSimAgent/SystemCode/EcoAgents
 3. **Install dependencies**:
-npm install # For Node.js dependencies pip install -r requirements.txt # For Python dependencies
+pip install -r requirements.txt
 
 ## Usage
 1. **Run the Backend Simulation**:
@@ -58,7 +58,7 @@ python SimModel/ai_economist/main.py
 2. **Start the Frontend Server**:
 npm start
 3. **Access the Web Interface**:
-- Open a browser and navigate to `http://localhost:3000` to configure and start simulations.
+Open a browser and navigate to `http://localhost:3000` to configure and start simulations.
 
 ## Solution Implementation
 - **User Interface Design**: Includes multiple pages for exploring macroeconomic changes, setting up simulations, and viewing detailed agent data.
