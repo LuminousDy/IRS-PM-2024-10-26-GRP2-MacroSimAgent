@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Individual Agent Income Chart</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <!-- NiceAdmin Template CSS and Vendor Files -->
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="assets/vendor/quill/quill.snow.css" rel="stylesheet">
+    <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+    <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet"> <!-- Main CSS of NiceAdmin -->
+
+    <!-- Google Fonts for clean typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <style>
+        body,
+        h1,
+        h2,
+        h3,
+        h4,
+        p,
+        select {
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+        }
+
+        .controls-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .select-agent-container {
+            width: 50%;
+        }
+
+        .agent-info-container {
+            width: 50%;
+            border: 1px solid #ddd;
+            padding: 20px;
+        }
+
+        .chart-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .chart {
+            width: 100%;
+            height: 400px;
+        }
+
+        .form-select {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <span class="d-none d-lg-block">Agent Dashboard</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div>
+    </header>
+
+    <!-- ======= Sidebar ======= -->
+    <aside id="sidebar" class="sidebar">
+        <ul class="sidebar-nav" id="sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="index.html">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="world-visualization.html">
+                    <i class="bi bi-globe"></i>
+                    <span>World Data Visualization</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link " href="overall-agents-visualization.html">
+                    <i class="bi bi-grid"></i>
+                    <span>Overall Agents Visualization</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="individual-agent.html">
+                    <i class="bi bi-person"></i>
+                    <span>Individual Agent Income</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="agents-data-visualization.html">
+                    <i class="bi bi-bar-chart"></i>
+                    <span>Agents Data Visualization</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="occupation-clusters.html">
+                    <i class="bi bi-diagram-3"></i>
+                    <span>Occupation Clusters</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <main id="main" class="main">
+        <div class="pagetitle">
+            <h1>Individual Agent Income Chart</h1>
+            <nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="index.html">Home</a></li><li class="breadcrumb-item active">Individual Agent Income</li></ol></nav>
+        </div>
+
+        <section class="section dashboard">
+            <div class="controls-container">
+                <!-- Select Agent Container (Left Side) -->
+                <div class="select-agent-container">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Select Agent</h5>
+                            <select id="agentSelect" class="form-select">
+                                <option value="">Select Agent</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agent Information Container (Right Side) -->
+                <div id="agentInfo" class="agent-info-container">
+                    <p><strong>Name:</strong> <span id="agentName"></span></p>
+                    <p><strong>Age:</strong> <span id="agentAge"></span></p>
+                    <p><strong>City:</strong> <span id="agentCity"></span></p>
+                    <p><strong>Education:</strong> <span id="agentEducation"></span></p>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="chart-container">
+                <div class="chart" id="incomeChart"></div>
+                <div class="chart" id="taxChart"></div>
+                <div class="chart" id="marginalRateChart"></div>
+                <div class="chart" id="effectiveRateChart"></div>
+                <div class="chart" id="lumpSumChart"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- JS Files -->
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
+
+    <script>
+        let charts = {};
+
+        // 获取代理数据并填充下拉框
+        fetch('/agents')
+            .then(response => response.json())
+            .then(data => {
+                const agents = data.agents;
+                const agentSelect = document.getElementById('agentSelect');
+                Object.keys(agents).forEach(agentName => {
+                    const option = document.createElement('option');
+                    option.value = agentName;
+                    option.textContent = agentName;
+                    agentSelect.appendChild(option);
+                });
+
+                // 选择代理时加载代理信息
+                agentSelect.addEventListener('change', function(event) {
+                    const selectedAgent = event.target.value;
+                    if (selectedAgent) loadAgentInfo(selectedAgent);
+                });
+            })
+            .catch(error => console.error('Error loading agent data:', error));
+
+        // 加载选中代理的信息并更新图表
+        function loadAgentInfo(agentName) {
+            fetch(`/agent/${agentName}`)
+                .then(response => response.json())
+                .then(data => {
+                    const info = data.info;
+                    const records = data.records;
+                    const months = records.map(item => `Year:${Math.floor(item.month / 12)} Month:${item.month % 12 + 1}`);
+                    const incomes = records.map(item => parseFloat(item.income.toFixed(2)));
+                    const taxPaid = records.map(item => parseFloat(item.tax_paid.toFixed(2)));
+                    const marginalRates = records.map(item => parseFloat(item.marginal_rate.toFixed(2)));
+                    const effectiveRates = records.map(item => parseFloat(item.effective_rate.toFixed(2)));
+                    const lumpSums = records.map(item => parseFloat(item.lump_sum.toFixed(2)));
+
+                    // 更新代理信息
+                    document.getElementById('agentName').textContent = info.name;
+                    document.getElementById('agentAge').textContent = info.age;
+                    document.getElementById('agentCity').textContent = info.city;
+                    document.getElementById('agentEducation').textContent = info.education;
+
+                    // 销毁旧图表（如果存在）
+                    Object.values(charts).forEach(chart => chart.destroy());
+
+                    // 创建图表
+                    charts.incomeChart = createChart("incomeChart", `${info.name} - Income`, months, incomes);
+                    charts.taxChart = createChart("taxChart", `${info.name} - Tax Paid`, months, taxPaid);
+                    charts.marginalRateChart = createChart("marginalRateChart", `${info.name} - Marginal Rate`, months, marginalRates);
+                    charts.effectiveRateChart = createChart("effectiveRateChart", `${info.name} - Effective Rate`, months, effectiveRates);
+                    charts.lumpSumChart = createChart("lumpSumChart", `${info.name} - Lump Sum`, months, lumpSums);
+                })
+                .catch(error => console.error('Error loading agent data:', error));
+        }
+
+        function createChart(chartId, title, categories, data) {
+            const options = {
+                series: [{ name: title, data: data }],
+                chart: { height: 400, type: 'line', zoom: { enabled: false } },
+                dataLabels: { enabled: false },
+                stroke: { curve: 'straight' },
+                title: { text: title, align: 'left' },
+                xaxis: { categories: categories, title: { text: 'Month (Year-Month)' } },
+                yaxis: {
+                    labels: { formatter: function(value) { return value.toFixed(2); }}
+                },
+                tooltip: {
+                    y: { formatter: function(value) { return `${title}: ${value.toFixed(2)}`; }}
+                }
+            };
+            return new ApexCharts(document.getElementById(chartId), options).render();
+        }
+    </script>
+
+</body>
+</html>

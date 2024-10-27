@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agents Data Visualization</title>
+    <!-- 引入必要的CSS文件 -->
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet"> <!-- Main CSS of NiceAdmin -->
+    <!-- 引入 ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(to bottom right, #f0f8ff, #e6e6fa);
+            color: #333;
+        }
+
+        #agentsContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+        }
+
+        .agent-checkbox {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+            padding: 8px;
+            background-color: #e0e0eb;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .agent-checkbox:hover {
+            background-color: #d0d0e0;
+        }
+
+        #chartsContainer {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        h3 {
+            font-size: 18px;
+            margin: 0 0 15px;
+            color: #444;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        #agentsContainer label {
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        #agentsContainer input[type="checkbox"] {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        #chartsContainer>div {
+            padding: 20px;
+            background: rgba(240, 248, 255, 0.9);
+            border: 1px solid #e1e4ea;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        #chartsContainer>div:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <span class="d-none d-lg-block">Agent Income Dashboard</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div>
+
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center">
+                <li class="nav-item d-block d-lg-none">
+                    <a class="nav-link nav-icon search-bar-toggle " href="#">
+                        <i class="bi bi-search"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- ======= Sidebar ======= -->
+    <aside id="sidebar" class="sidebar">
+        <ul class="sidebar-nav" id="sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="index.html">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="world-visualization.html">
+                    <i class="bi bi-globe"></i>
+                    <span>World Data Visualization</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link " href="overall-agents-visualization.html">
+                    <i class="bi bi-grid"></i>
+                    <span>Overall Agents Visualization</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="individual-agent.html">
+                    <i class="bi bi-person"></i>
+                    <span>Individual Agent Income</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="agents-data-visualization.html">
+                    <i class="bi bi-bar-chart"></i>
+                    <span>Agents Data Visualization</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="occupation-clusters.html">
+                    <i class="bi bi-diagram-3"></i>
+                    <span>Occupation Clusters</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- ======= Main Content ======= -->
+    <main id="main" class="main">
+        <div class="pagetitle">
+            <h1>Agents Data Visualization</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item active">Agents Data Visualization</li>
+                </ol>
+            </nav>
+        </div>
+
+        <section class="section dashboard">
+            <div class="row">
+                <!-- Agents Selection -->
+                <div id="agentsContainer"></div>
+
+                <!-- Charts -->
+                <div id="chartsContainer">
+                    <div>
+                        <h3>Inventory Coin</h3>
+                        <div id="inventoryCoinChart"></div>
+                    </div>
+                    <div>
+                        <h3>Inventory Products</h3>
+                        <div id="inventoryProductsChart"></div>
+                    </div>
+                    <div>
+                        <h3>Consumption Coin</h3>
+                        <div id="consumptionCoinChart"></div>
+                    </div>
+                    <div>
+                        <h3>Consumption Products</h3>
+                        <div id="consumptionProductsChart"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ApexCharts Configuration -->
+    <script>
+        const datasetsOptions = [
+            { key: 'Inventory_Coin', label: 'Inventory Coin', chartId: 'inventoryCoinChart' },
+            { key: 'Inventory_Products', label: 'Inventory Products', chartId: 'inventoryProductsChart' },
+            { key: 'Consumption_Coin', label: 'Consumption Coin', chartId: 'consumptionCoinChart' },
+            { key: 'Consumption_Products', label: 'Consumption Products', chartId: 'consumptionProductsChart' },
+        ];
+
+        let selectedAgents = [];
+        let chartInstances = {};
+        const agentColors = {};
+
+        const predefinedColors = [
+            '#1F77B4', '#FF7F0E', '#2CA02C', '#D62728', '#9467BD',
+            '#8C564B', '#E377C2', '#7F7F7F', '#BCBD22', '#17BECF'
+        ];
+
+        fetch('/agent-records')
+            .then(response => response.json())
+            .then(data => {
+                const agentsContainer = document.getElementById('agentsContainer');
+                let colorIndex = 0;
+
+                Object.keys(data).forEach(agentId => {
+                    const agent = data[agentId];
+                    agentColors[agentId] = predefinedColors[colorIndex % predefinedColors.length];
+                    colorIndex++;
+
+                    const checkboxContainer = document.createElement('div');
+                    checkboxContainer.className = 'agent-checkbox';
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = agentId;
+                    checkbox.id = `agent-${agentId}`;
+                    checkbox.addEventListener('change', () => {
+                        updateSelectedAgents(agentId, checkbox.checked);
+                        updateCharts(data);
+                    });
+                    const label = document.createElement('label');
+                    label.htmlFor = checkbox.id;
+                    label.innerHTML = agent.info.name;
+
+                    checkboxContainer.appendChild(checkbox);
+                    checkboxContainer.appendChild(label);
+                    agentsContainer.appendChild(checkboxContainer);
+                });
+
+                drawEmptyCharts();
+            })
+            .catch(error => console.error('Error fetching agents data:', error));
+
+        function updateSelectedAgents(agentId, isChecked) {
+            if (isChecked) {
+                selectedAgents.push(agentId);
+            } else {
+                selectedAgents = selectedAgents.filter(id => id !== agentId);
+            }
+        }
+
+        function updateCharts(data) {
+            if (selectedAgents.length === 0) {
+                drawEmptyCharts();
+                return;
+            }
+
+            datasetsOptions.forEach(option => {
+                const chartId = document.getElementById(option.chartId);
+                if (chartInstances[option.chartId]) {
+                    chartInstances[option.chartId].destroy();
+                }
+
+                const series = selectedAgents.map(agentId => {
+                    const agent = data[agentId];
+                    const agentData = agent.records.map(record => parseFloat(record[option.key]));
+                    return {
+                        name: agent.info.name,
+                        data: agentData
+                    };
+                });
+
+                chartInstances[option.chartId] = new ApexCharts(chartId, {
+                    series: series,
+                    chart: {
+                        height: 350,
+                        type: 'line',
+                        zoom: {
+                            enabled: false
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        curve: 'straight'
+                    },
+                    grid: {
+                        row: {
+                            colors: ['#f3f3f3', 'transparent'],
+                            opacity: 0.5
+                        },
+                    },
+                    xaxis: {
+                        categories: data[selectedAgents[0]].records.map(record => `Month ${record.month}`)
+                    },
+                    yaxis: {
+                        labels: {
+                            formatter: function (value) {
+                                return value.toFixed(2); // 保留两位小数
+                            }
+                        }
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (value) {
+                                return value.toFixed(2); // 保留两位小数
+                            }
+                        }
+                    }
+                });
+
+                chartInstances[option.chartId].render();
+            });
+        }
+
+        function drawEmptyCharts() {
+            datasetsOptions.forEach(option => {
+                const chartId = document.getElementById(option.chartId);
+                if (chartInstances[option.chartId]) {
+                    chartInstances[option.chartId].destroy();
+                }
+
+                chartInstances[option.chartId] = new ApexCharts(chartId, {
+                    series: [],
+                    chart: {
+                        height: 350,
+                        type: 'line',
+                        zoom: {
+                            enabled: false
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        curve: 'straight'
+                    },
+                    grid: {
+                        row: {
+                            colors: ['#f3f3f3', 'transparent'],
+                            opacity: 0.5
+                        },
+                    },
+                    xaxis: {
+                        categories: []
+                    }
+                });
+
+                chartInstances[option.chartId].render();
+            });
+        }
+    </script>
+</body>
+
+</html>

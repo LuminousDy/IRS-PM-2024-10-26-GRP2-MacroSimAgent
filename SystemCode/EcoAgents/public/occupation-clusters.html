@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Occupation Clusters</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .cluster-container {
+            margin: 20px;
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 2000px;
+            height: 1000px;
+            position: relative;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .node {
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+
+        text {
+            font-size: 12px;
+            fill: #000;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <span class="d-none d-lg-block">Agent Income Dashboard</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div>
+
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center">
+                <li class="nav-item d-block d-lg-none">
+                    <a class="nav-link nav-icon search-bar-toggle " href="#">
+                        <i class="bi bi-search"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- ======= Sidebar ======= -->
+    <aside id="sidebar" class="sidebar">
+        <ul class="sidebar-nav" id="sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="index.html">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="world-visualization.html">
+                    <i class="bi bi-globe"></i>
+                    <span>World Data Visualization</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link " href="overall-agents-visualization.html">
+                    <i class="bi bi-grid"></i>
+                    <span>Overall Agents Visualization</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="individual-agent.html">
+                    <i class="bi bi-person"></i>
+                    <span>Individual Agent Income</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="agents-data-visualization.html">
+                    <i class="bi bi-bar-chart"></i>
+                    <span>Agents Data Visualization</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="occupation-clusters.html">
+                    <i class="bi bi-diagram-3"></i>
+                    <span>Occupation Clusters</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <main id="main" class="main">
+        <div class="pagetitle">
+            <h1>Occupation Clusters</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item active">Occupation Clusters</li>
+                </ol>
+            </nav>
+        </div>
+
+        <section class="section dashboard">
+            <div class="row">
+                <div class="col-12">
+                    <div class="cluster-container">
+                        <svg></svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/clusters')
+                .then(response => response.json())
+                .then(clusters => {
+                    const width = document.querySelector('.cluster-container').offsetWidth;
+                    const height = document.querySelector('.cluster-container').offsetHeight;
+
+                    const svg = d3.select("svg")
+                        .attr("width", width)
+                        .attr("height", height)
+                        .call(d3.zoom().on("zoom", (event) => {
+                            svg.attr("transform", event.transform);
+                        }))
+                        .append("g");
+
+                    const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+                    const nodes = [];
+                    const links = [];
+
+                    clusters.forEach((cluster, clusterIndex) => {
+                        cluster.forEach(occupation => {
+                            const occupationNode = {
+                                id: occupation,
+                                clusterIndex: clusterIndex,
+                                radius: 30,
+                                isCluster: false
+                            };
+                            nodes.push(occupationNode);
+
+                            cluster.forEach(otherOccupation => {
+                                if (occupation !== otherOccupation) {
+                                    links.push({
+                                        source: occupationNode.id,
+                                        target: otherOccupation
+                                    });
+                                }
+                            });
+                        });
+                    });
+
+                    const simulation = d3.forceSimulation(nodes)
+                        .force("link", d3.forceLink(links).id(d => d.id).distance(100).strength(1))  // 减小链接的距离
+                        .force("charge", d3.forceManyBody().strength(-200))  // 减小排斥力
+                        .force("center", d3.forceCenter(width / 2, height / 2))
+                        .force("collision", d3.forceCollide().radius(d => d.radius + 5))
+                        .on("tick", ticked);
+
+                    const link = svg.append("g")
+                        .attr("class", "links")
+                        .selectAll("line")
+                        .data(links)
+                        .enter().append("line")
+                        .attr("stroke", "#999")
+                        .attr("stroke-opacity", 0.6)
+                        .attr("stroke-width", 1.5);
+
+                    const node = svg.append("g")
+                        .attr("class", "nodes")
+                        .selectAll("g")
+                        .data(nodes)
+                        .enter().append("g")
+                        .call(drag(simulation));
+
+                    node.append("circle")
+                        .attr("r", d => d.radius)
+                        .attr("fill", d => color(d.clusterIndex));
+
+                    node.append("text")
+                        .attr("dy", 3)
+                        .attr("text-anchor", "middle")
+                        .text(d => d.id);
+
+                    function ticked() {
+                        link
+                            .attr("x1", d => d.source.x)
+                            .attr("y1", d => d.source.y)
+                            .attr("x2", d => d.target.x)
+                            .attr("y2", d => d.target.y);
+
+                        node
+                            .attr("transform", d => `translate(${d.x},${d.y})`);
+                    }
+
+                    function drag(simulation) {
+                        function dragstarted(event, d) {
+                            if (!event.active) simulation.alphaTarget(0.3).restart();
+                            d.fx = d.x;
+                            d.fy = d.y;
+                        }
+
+                        function dragged(event, d) {
+                            d.fx = event.x;
+                            d.fy = event.y;
+                        }
+
+                        function dragended(event, d) {
+                            if (!event.active) simulation.alphaTarget(0);
+                            d.fx = null;
+                            d.fy = null;
+                        }
+
+                        return d3.drag()
+                            .on("start", dragstarted)
+                            .on("drag", dragged)
+                            .on("end", dragended);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching cluster data:', error);
+                });
+        });
+    </script>
+
+</body>
+
+</html>

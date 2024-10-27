@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Overall Agents Visualization</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <!-- NiceAdmin Template CSS and Vendor Files -->
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="assets/vendor/quill/quill.snow.css" rel="stylesheet">
+    <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+    <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet"> <!-- Main CSS of NiceAdmin -->
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #333;
+        }
+
+        p {
+            font-family: 'Roboto', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            font-weight: 400;
+            color: #333;
+        }
+
+        .card-title {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            font-size: 22px;
+        }
+
+        .overall-chart-container {
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 70%;
+            margin: 0 auto;
+        }
+
+        #monthRange {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .month-label {
+            text-align: center;
+        }
+
+        .agent-checkbox {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+            padding: 8px;
+            background-color: #e0e0eb;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .agent-checkbox:hover {
+            background-color: #d0d0e0;
+        }
+
+        .agent-checkbox label {
+            margin-left: 8px;
+            font-weight: 500;
+        }
+
+        .agent-checkbox input[type="checkbox"] {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        .agent-checkbox-container {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .agent-checkbox-container label {
+            margin: 0 10px;
+        }
+
+        .agent-info-container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        #overallChart {
+            height: 350px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="overall-agents-visualization.html" class="logo d-flex align-items-center">
+                <span class="d-none d-lg-block">Agent Income Dashboard</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div>
+
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center">
+                <li class="nav-item d-block d-lg-none">
+                    <a class="nav-link nav-icon search-bar-toggle " href="#">
+                        <i class="bi bi-search"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- ======= Sidebar ======= -->
+    <aside id="sidebar" class="sidebar">
+        <ul class="sidebar-nav" id="sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="index.html">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="world-visualization.html">
+                    <i class="bi bi-globe"></i>
+                    <span>World Data Visualization</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link " href="overall-agents-visualization.html">
+                    <i class="bi bi-grid"></i>
+                    <span>Overall Agents Visualization</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="individual-agent.html">
+                    <i class="bi bi-person"></i>
+                    <span>Individual Agent Income</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="agents-data-visualization.html">
+                    <i class="bi bi-bar-chart"></i>
+                    <span>Agents Data Visualization</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="occupation-clusters.html">
+                    <i class="bi bi-diagram-3"></i>
+                    <span>Occupation Clusters</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+
+
+    <main id="main" class="main">
+        <div class="pagetitle">
+            <h1>Monthly Agent Income Comparison</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="overall-agents-visualization.html">Home</a></li>
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </nav>
+        </div>
+
+        <section class="section dashboard">
+            <div class="row">
+                <!-- Month Selector -->
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Select Month</h5>
+                            <input type="range" id="monthRange" min="0" max="239" value="0" step="1" />
+                            <div class="month-label">
+                                <strong>Selected Month: <span id="selectedMonth">1</span></strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agent Selection -->
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Select Agents</h5>
+                            <div id="agentCheckboxContainer" class="agent-checkbox-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Overall Bar Chart -->
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Monthly Agent Income Comparison</h5>
+                            <div id="overallChart" class="overall-chart-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agent Information -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Agent Information</h5>
+                            <div id="agentInfo" class="agent-info-container">
+                                <p><strong>Name:</strong> <span id="agentName"></span></p>
+                                <p><strong>Age:</strong> <span id="agentAge"></span></p>
+                                <p><strong>City:</strong> <span id="agentCity"></span></p>
+                                <p><strong>Education:</strong> <span id="agentEducation"></span></p>
+                                <p><strong>Job:</strong> <span id="agentJob"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
+
+    <script>
+        let overallChart = null;
+        let agentData = {};
+        let selectedAgents = {};
+        let episodeLength = 240;
+
+        fetch('/agents')
+            .then(response => response.json())
+            .then(data => {
+                agentData = data.agents;
+                episodeLength = data.episodeLength;  // 获取 episodeLength
+                initializeAgentCheckboxes();
+                initializeChart();
+                // 动态设置滑动条的最大值
+                document.getElementById('monthRange').max = episodeLength - 1;
+            })
+            .catch(error => console.error('Error loading agent data:', error));
+
+
+        function initializeChart() {
+            const selectedMonth = parseInt(document.getElementById('monthRange').value);
+            const { labels, dataset } = generateChartDataForMonth(selectedMonth);
+
+            const chartOptions = {
+                series: [{
+                    name: 'Agent Income',
+                    data: dataset
+                }],
+                chart: {
+                    height: 350,
+                    type: 'bar',
+                    events: {
+                        dataPointSelection: function (event, chartContext, config) {
+                            const agentName = labels[config.dataPointIndex];
+                            displayAgentInfo(agentName);
+                        }
+                    }
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                    },
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                xaxis: {
+                    categories: labels,
+                    title: {
+                        text: 'Agents'
+                    }
+                },
+                yaxis: {
+                    title: {
+                        text: 'Income'
+                    },
+                    labels: {
+                        formatter: function (value) {
+                            return value.toFixed(2);
+                        }
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (value) {
+                            return value.toFixed(2);
+                        }
+                    }
+                }
+            };
+
+            overallChart = new ApexCharts(document.querySelector("#overallChart"), chartOptions);
+            overallChart.render();
+        }
+
+        function generateChartDataForMonth(monthIndex) {
+            const labels = Object.keys(agentData).filter(agentName => selectedAgents[agentName]);
+            const dataset = labels.map(agentName => {
+                const agent = agentData[agentName];
+                const incomeRecord = agent.records.find(record => record.month === monthIndex + 1);
+                return incomeRecord ? incomeRecord.income : 0;
+            });
+            return { labels, dataset };
+        }
+
+        document.getElementById('monthRange').addEventListener('input', function (event) {
+            const selectedMonth = parseInt(event.target.value);
+            document.getElementById('selectedMonth').textContent = selectedMonth + 1;
+            const { labels, dataset } = generateChartDataForMonth(selectedMonth);
+            overallChart.updateSeries([{
+                data: dataset
+            }]);
+            overallChart.updateOptions({
+                xaxis: {
+                    categories: labels
+                }
+            });
+        });
+
+        function initializeAgentCheckboxes() {
+            const agentCheckboxContainer = document.getElementById('agentCheckboxContainer');
+            Object.keys(agentData).forEach(agentName => {
+                selectedAgents[agentName] = true;  // 默认所有代理都被选中
+
+                const checkboxContainer = document.createElement('div');
+                checkboxContainer.className = 'agent-checkbox';  // 添加复选框容器样式
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = true;
+                checkbox.dataset.agent = agentName;
+
+                checkbox.addEventListener('change', function () {
+                    selectedAgents[agentName] = checkbox.checked;
+                    updateChartWithSelectedAgents();
+                });
+
+                const label = document.createElement('label');
+                label.htmlFor = checkbox.id;
+                label.textContent = ` ${agentName}`;
+
+                checkboxContainer.appendChild(checkbox);
+                checkboxContainer.appendChild(label);
+                agentCheckboxContainer.appendChild(checkboxContainer);
+            });
+        }
+        function updateChartWithSelectedAgents() {
+            const selectedMonth = parseInt(document.getElementById('monthRange').value);
+            const { labels, dataset } = generateChartDataForMonth(selectedMonth);
+            overallChart.updateSeries([{
+                data: dataset
+            }]);
+            overallChart.updateOptions({
+                xaxis: {
+                    categories: labels
+                }
+            });
+        }
+
+        function displayAgentInfo(agentName) {
+            const agentInfo = agentData[agentName].info;
+            document.getElementById('agentName').textContent = agentInfo.name;
+            document.getElementById('agentAge').textContent = agentInfo.age;
+            document.get
+            document.getElementById('agentCity').textContent = agentInfo.city; document.getElementById('agentEducation').textContent = agentInfo.education; document.getElementById('agentJob').textContent = agentInfo.job;
+        } </script>
+
+</body>
+
+</html>

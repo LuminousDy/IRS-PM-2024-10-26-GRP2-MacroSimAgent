@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Overall Agents Visualization</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <!-- NiceAdmin Template CSS and Vendor Files -->
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="assets/vendor/quill/quill.snow.css" rel="stylesheet">
+    <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+    <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet"> <!-- Main CSS of NiceAdmin -->
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+        }
+
+        .card-title {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            font-size: 22px;
+        }
+
+        .overall-chart-container {
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 70%;
+            margin: 0 auto;
+        }
+
+        #overallChart,
+        #gdpChart,
+        #growthRatesChart,
+        #monthlyPriceChart {
+            height: 350px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <span class="d-none d-lg-block">Agent Income Dashboard</span>
+            </a>
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div>
+
+        <nav class="header-nav ms-auto">
+            <ul class="d-flex align-items-center">
+                <li class="nav-item d-block d-lg-none">
+                    <a class="nav-link nav-icon search-bar-toggle " href="#">
+                        <i class="bi bi-search"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- ======= Sidebar ======= -->
+    <aside id="sidebar" class="sidebar">
+        <ul class="sidebar-nav" id="sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="index.html">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="world-visualization.html">
+                    <i class="bi bi-globe"></i>
+                    <span>World Data Visualization</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="overall-agents-visualization.html">
+                    <i class="bi bi-grid"></i>
+                    <span>Overall Agents Visualization</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="individual-agent.html">
+                    <i class="bi bi-person"></i>
+                    <span>Individual Agent Income</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="agents-data-visualization.html">
+                    <i class="bi bi-bar-chart"></i>
+                    <span>Agents Data Visualization</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="occupation-clusters.html">
+                    <i class="bi bi-diagram-3"></i>
+                    <span>Occupation Clusters</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <main id="main" class="main">
+        <div class="pagetitle">
+            <h1>Overall Agents Visualization</h1>
+        </div>
+
+        <section class="section">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Real GDP vs. Nominal GDP Comparison</h5>
+                        <div id="overallChart"></div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Growth Rates</h5>
+                        <div id="growthRatesChart"></div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            </div>
+        </section>
+    </main>
+
+    <script>
+        async function fetchWorldData() {
+            try {
+                const response = await fetch('/world-data');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                processWorldData(data);
+            } catch (error) {
+                console.error('Error fetching world data:', error);
+            }
+        }
+
+        function processWorldData(data) {
+            const annualData = data.filter(item => item.month % 12 === 0 && item.month !== 0);
+            renderCombinedGDPChart(annualData); // Combined GDP chart
+            renderGrowthRatesChart(annualData);
+            populateYearCheckboxes(Object.keys(yearlyData));
+            renderMonthlyPriceChart(yearlyData);
+        }
+
+
+        function renderCombinedGDPChart(data) {
+            const years = data.map(item => item.month / 12); // Convert months to years
+            const realGDPData = data.map(item => item.realGDP);
+            const nominalGDPData = data.map(item => item.nominalGDP);
+
+            const options = {
+                series: [
+                    { name: 'Real GDP', data: realGDPData },
+                    { name: 'Nominal GDP', data: nominalGDPData }
+                ],
+                chart: { type: 'line', height: 350 },
+                xaxis: { categories: years, title: { text: 'Year' } },
+                yaxis: {
+                    title: { text: 'GDP' },
+                    labels: {
+                        formatter: function (value) {
+                            return value.toFixed(2); // Display two decimal places
+                        }
+                    }
+                }
+            };
+
+            const chart = new ApexCharts(document.querySelector("#overallChart"), options);
+            chart.render();
+        }
+
+
+
+        // 图表2：增长率
+        function renderGrowthRatesChart(data) {
+            const years = data.map(item => item.month / 12);
+            const priceInflation = data.map(item => item.priceInflation || 0);
+            const unemploymentGrowth = data.map(item => item.unemploymentGrowth || 0);
+            const wageInflation = data.map(item => item.wageInflation || 0);
+            const nominalGDPGrowth = data.map(item => item.nominalGDPGrowth || 0);
+            const realGDPGrowth = data.map(item => item.realGDPGrowth || 0);
+
+            const options = {
+                series: [
+                    { name: 'Price Inflation', data: priceInflation },
+                    { name: 'Unemployment Rate Growth', data: unemploymentGrowth },
+                    { name: 'Wage Inflation', data: wageInflation },
+                    { name: 'Nominal GDP Growth', data: nominalGDPGrowth },
+                    { name: 'Real GDP Growth', data: realGDPGrowth }
+                ],
+                chart: { type: 'line', height: 350 },
+                xaxis: { categories: years, title: { text: 'Year' } },
+                yaxis: {
+                    title: { text: 'Growth Rate' },
+                    labels: {
+                        formatter: function (value) {
+                            return value.toFixed(2); // 保留两位小数
+                        }
+                    }
+                }
+            };
+
+            const chart = new ApexCharts(document.querySelector("#growthRatesChart"), options);
+            chart.render();
+        }
+
+        function populateYearCheckboxes(years) {
+            const yearContainer = document.getElementById('yearSelect');
+            yearContainer.innerHTML = '';
+
+            years.forEach(year => {
+                const label = document.createElement('label');
+                label.classList.add('form-check-label');
+                label.style.marginRight = "10px";
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = year;
+                checkbox.classList.add('form-check-input');
+                checkbox.addEventListener('change', updateMonthlyPriceChart);
+
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(`Year ${year}`));
+                yearContainer.appendChild(label);
+            });
+        }
+
+
+        fetchWorldData();
+    </script>
+</body>
+
+</html>
